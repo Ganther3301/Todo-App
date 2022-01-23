@@ -43,8 +43,8 @@ class Create(ttk.Frame):
         super().__init__(parent)
 
         def createAccount():
-            if name.get() and username.get() and password.get():
-                valid = db.create(name.get(), username.get(), password.get())
+            if name.get() and username.get() and password.get() and email.get():
+                valid = db.create(name.get(), username.get(), password.get(), email.get())
                 if valid:
                     show.ok('Account created successfully!', title = 'Success')
                     controller.delFrame(Login)
@@ -65,10 +65,15 @@ class Create(ttk.Frame):
         username.focus()
         username.grid(row = 3, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
 
-        ttk.Label(self, text = "Password").grid(row = 4, column = 0, padx = 10, pady = (10,0), sticky = tk.NW)
-        password = ttk.Entry(self, show = '*')
-        password.grid(row = 5, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
+        ttk.Label(self, text = "Email-ID",).grid(row = 4, column = 0, padx = 10, pady = (10,0), sticky = tk.EW)
+        email = ttk.Entry(self) 
+        email.focus()
+        email.grid(row = 5, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
 
-        ttk.Button(self, text = 'Create Account', bootstyle = LIGHT, command = createAccount).grid(row = 6, column = 0, padx = 10, pady = (2,10), sticky = 'nsew')
-        ttk.Button(self, text = 'Back to Login', bootstyle = LIGHT,command = lambda: controller.delFrame(Login)).grid(row = 7, column = 0, padx = 10, pady = (2,10), sticky = 'nsew')
+        ttk.Label(self, text = "Password").grid(row = 6, column = 0, padx = 10, pady = (10,0), sticky = tk.NW)
+        password = ttk.Entry(self, show = '*')
+        password.grid(row = 7, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
+
+        ttk.Button(self, text = 'Create Account', bootstyle = LIGHT, command = createAccount).grid(row = 8, column = 0, padx = 10, pady = (2,10), sticky = 'nsew')
+        ttk.Button(self, text = 'Back to Login', bootstyle = LIGHT,command = lambda: controller.delFrame(Login)).grid(row = 9, column = 0, padx = 10, pady = (2,10), sticky = 'nsew')
   

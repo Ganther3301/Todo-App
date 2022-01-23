@@ -1,4 +1,5 @@
 import tkinter as tk
+import datetime
 from ttkbootstrap.dialogs import Messagebox as show
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -147,7 +148,7 @@ class List(ttk.Frame):
         for j in self.tasks:
             if  j!= ' ':
                 lb = ttk.Checkbutton(btm, text = j, bootstyle = 'dark', ) 
-                if db.user['todo'][db.title][j] == 'True':
+                if db.user['todo'][db.title][j]['value'] == 'True':
                     lb = ttk.Checkbutton(completed, text = j, bootstyle = 'dark', ) 
                     lb.state(['selected'])
                     # lb['state'] = 'disabled'
@@ -170,6 +171,7 @@ class List(ttk.Frame):
     def newEntry(self,controller):
 
         def checkEntry():
+            now = datetime.datetime.now()
             if not title.get().strip():
                 show.show_error('Enter task', title = 'Error')
                 top.lift()
@@ -182,8 +184,19 @@ class List(ttk.Frame):
                 show.show_error('Task already exists!', title = "Error")
                 top.lift()
                 top.focus()
+            elif int(day_cb.get()) < int(today.day) or (months.index(month_cb.get())+1) < int(today.month) or int(year_cb.get()) < int(today.year):
+                show.show_error('Invalid date!', title = "Error")
+                top.lift()
+                top.focus()
+            elif int(hours_cb.get()) < int(now.hour) or int(min_cb.get()) < int(now.minute):
+                show.show_error('Invalid time!', title = "Error")
+                top.lift()
+                top.focus()
+
             else:
-                db.addItem(title.get().strip())
+                db.addItem(title.get().strip(), 
+                    f'{int(day_cb.get())}-{months.index(month_cb.get())+1}-{int(year_cb.get())}',
+                    f'{int(hours_cb.get())}:{int(min_cb.get())}')
                 top.destroy()
                 controller.delFrame(List)
 
@@ -196,4 +209,57 @@ class List(ttk.Frame):
         title.focus()
         title.grid(row = 1, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
 
-        ttk.Button(top, text = 'Create', bootstyle = LIGHT, command = checkEntry).grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+        today = datetime.date.today()
+        now = datetime.datetime.now()
+        date = tk.Frame(top)
+         
+        day_cb = ttk.Combobox(date, values = list(range(1,32)), state = 'readonly', width = 3)
+        day_cb.current(int(today.day) - 1)
+
+        # selected_month = tk.StringVar(value = 'Month',)
+        month_cb = ttk.Combobox(date, state = 'readonly',  width = 3)
+
+        # get first 3 letters of every month name
+        months = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+        ]
+        month_cb['values'] = months
+
+        # prevent typing a value
+        month_cb.current(int(today.month) - 1)
+
+        years =  list(range(int(today.year),int(today.year)+11))
+        year_cb = ttk.Combobox(date, values = years, state = 'readonly', width = 5)
+        year_cb.current(years.index(int(today.year)))
+
+        day_cb.grid(row = 0, column = 0, padx = 2)
+        month_cb.grid(row = 0, column = 1, padx = 2)
+        year_cb.grid(row = 0, column = 2, padx = 2)
+
+        date.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+
+        time = ttk.Frame(top)
+        hours_cb = ttk.Combobox(time, values = list(range(0,24)), state = 'readonly', width = 5)
+        hours_cb.current(int(now.hour))
+
+        min_cb = ttk.Combobox(time, values = list(range(0,60)), state = 'readonly', width = 5)
+        min_cb.current(int(now.minute) + 1)
+
+        hours_cb.grid(row = 0, column = 0, padx = 5, sticky = 'nsew')
+        ttk.Label(time, text = ':', width = 1).grid(row = 0, column = 1, padx = 5, sticky = 'nsew')
+        min_cb.grid(row = 0, column = 2, padx = 5, sticky = 'nsew')
+
+        time.grid(row = 3, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+
+        ttk.Button(top, text = 'Create', bootstyle = LIGHT, command = checkEntry).grid(row = 4, column = 0, padx = 10, pady = 10, sticky = 'nsew')

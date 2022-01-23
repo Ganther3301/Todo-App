@@ -33,7 +33,7 @@ class App(ttk.Window):
 		self.showFrame(Login)
 
 	def showFrame(self,cont):
-		self.frame = cont(self, self.container)
+		self.frame = cont(self, self.canvas)
 		self.frames[List] = db.title
 		if self.frames[cont] in ['Home', db.title]:
 			self.attributes('-toolwindow', False)

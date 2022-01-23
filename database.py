@@ -29,13 +29,13 @@ def login(uname,psswd):
 	else:
 		return False	
 
-def create(name, username, psswd):
+def create(name, username, psswd, email):
 	uname = username
 	global users
 	if username in users:
 		return False
 	else: 
-		data = {'name':name, 'password':psswd, 'todo':{' ': {' ': 'False'}}}
+		data = {'name':name, 'password':psswd, 'email':email, 'todo':{' ': {' ': 'False'}}}
 		db.child(username).set(data)		
 		users = db.get().val()
 		return True
@@ -59,9 +59,9 @@ def deleteTitle(name):
 	db.child(username).child('todo').child(name).remove()
 	user = dict(db.child(username).get().val())
 
-def addItem(name):
+def addItem(name, date, time):
 	global user
-	data = {name:'False'}
+	data = {name:{'value':'False', 'date':date, 'time':time}}
 	db.child(username).child('todo').child(title).update(data)
 	user = dict(db.child(username).get().val())
 
@@ -72,6 +72,6 @@ def deleteItem(name):
 
 def updateItem(name, state):
 	global user
-	data = {name:state}
+	data = {name:{'value':state}}
 	db.child(username).child('todo').child(title).update(data)
 	user = dict(db.child(username).get().val())
