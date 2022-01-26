@@ -1,11 +1,8 @@
 import os
-import dotenv
 import yagmail
 
-dotenv.load_dotenv()
+yagmail.register('todolistreminder123@gmail.com', 'Project123')
 
-yagmail.register(os.getenv('EMAIL'), os.getenv('PASSWORD'))
-
-yag = yagmail.SMTP(os.getenv('EMAIL'))
+yag = yagmail.SMTP('todolistreminder123@gmail.com')
 
 yag.send(to = 'hithesh2k2@gmail.com', subject = 'This is a test', contents = 'Hello')
