@@ -1,1 +1,1 @@
-web: python reminder.py
+web: python mail.py

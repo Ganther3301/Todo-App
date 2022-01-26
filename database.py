@@ -61,6 +61,7 @@ def deleteTitle(name):
 
 def addItem(name, date, time):
 	global user
+	print(name)
 	data = {name:{'value':'False', 'date':date, 'time':time}}
 	db.child(username).child('todo').child(title).update(data)
 	user = dict(db.child(username).get().val())
@@ -70,8 +71,7 @@ def deleteItem(name):
 	db.child(username).child('todo').child(title).child(name).remove()
 	user = dict(db.child(username).get().val())
 
-def updateItem(name, state):
+def updateItem():
 	global user
-	data = {name:{'value':state}}
-	db.child(username).child('todo').child(title).update(data)
+	db.child(username).update(user)
 	user = dict(db.child(username).get().val())
