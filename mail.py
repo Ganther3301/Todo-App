@@ -1,10 +1,10 @@
 import os
-from dotenv import load_dotenv
+import dotenv
 import yagmail
 
-load_dotenv()
+dotenv.load_dotenv()
 
-yagmail.register(os.getenv('EMAIL'), os.getenv('PASSWORD')
+yagmail.register(os.getenv('EMAIL'), os.getenv('PASSWORD'))
 
 yag = yagmail.SMTP(os.getenv('EMAIL'))
 
