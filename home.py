@@ -1,6 +1,6 @@
 import tkinter as tk
 import datetime
-import main
+import subprocess
 from ttkbootstrap.dialogs import Messagebox as show
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -176,6 +176,7 @@ class List(ttk.Frame):
 
                 elif db.user['todo'][db.title][j]['value'] == 'incomplete':
                     lb = ttk.Checkbutton(incomplete, text = j, bootstyle = 'dark', ) 
+                    lb.state(['readonly'])
 
                 task_boxes.append(lb)
                 lb.grid(row = i, column = 0, padx =15, pady = 10, sticky = 'ew')

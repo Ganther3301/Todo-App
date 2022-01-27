@@ -2,15 +2,12 @@ from ctypes import windll
 import tkinter as tk
 from login import *
 from home import *
-import subprocess
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 class App(ttk.Window):
 	def __init__(self):
 		super().__init__(themename = "darkly")
-
-		reminder = subprocess.Popen(['python','reminder.py'])
 
 		self.title('Test')
 		self.resizable(0,0)
