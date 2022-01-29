@@ -1,4 +1,3 @@
-from ctypes import windll
 import tkinter as tk
 from login import *
 from home import *
@@ -66,7 +65,6 @@ class App(ttk.Window):
 		self.showFrame(cont)
 
 if __name__ == '__main__':
-	windll.shcore.SetProcessDpiAwareness(1)
 	app = App()
 	app.eval('tk::PlaceWindow . center')
 	app.mainloop()

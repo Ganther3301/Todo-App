@@ -31,7 +31,6 @@ class Home(ttk.Frame):
                 db.deleteTitle(icns[event.widget]['text'])
             controller.delFrame(Home)
 
-        lbls = []
         icns = dict() 
         style = tk.ttk.Style(controller)
         ttk.Label(self,text = "Hello " + db.get('name').strip() + '!', anchor = 'w', font = ('Roboto', 20,),).grid(row = 0, padx = 22, pady = (25,25), sticky = tk.EW) 
@@ -46,7 +45,6 @@ class Home(ttk.Frame):
         for j in self.names:
             if  j!= ' ':
                 lb = ttk.Labelframe(btm, text = j, height = 200, bootstyle = 'default') 
-                lbls.append(lb)
                 # width = 195
                 inside = ttk.Frame(lb, height = 15, width = 450,bootstyle = 'secondary')
                 icns[inside] = lb
@@ -57,13 +55,14 @@ class Home(ttk.Frame):
 
         add_btn.grid(row = i, column = 1, padx = 10, pady = 10, sticky = 'ew')
 
+        # menu = ttk.Menu(btm, tearoff = '0')
+        # menu.add_command(label = 'Delete', command = delete)
 
-        for i in lbls:
+        for i in icns:
             i.bind('<Button-1>',display)
-            i.bind('<Button-2>',delete)
-        for i in icns.keys():
-            i.bind('<Button-1>',display)
-            i.bind('<Button-2>',delete)
+            i.bind('<Button-3>',delete)
+            icns[i].bind('<Button-1>',display)
+            icns[i].bind('<Button-3>',delete)
 
         btm.grid(row = 2)
         style.configure('TLabelframe',borderwidth = 0.5)
@@ -128,7 +127,7 @@ class List(ttk.Frame):
                 # db.user['todo'][db.title][event.widget['text']]['value'] = 'False'
             else:
                  db.user['todo'][db.title][event.widget['text']]['value'] = 'True'
-            db.updateItem()
+            # db.updateItem()
             controller.delFrame(List)
 
 
@@ -154,20 +153,15 @@ class List(ttk.Frame):
         i = 0
         task_boxes = []
         self.tasks = db.get('todo', todo = True)
-        today = datetime.date.today()
         now = datetime.datetime.now()
         for j in self.tasks:
             if  j!= ' ':
-                date = list(map(int, db.user['todo'][db.title][j]['date'].split('-')))
-                time = list(map(int, db.user['todo'][db.title][j]['time'].split(':')))
+                dateTime = datetime.datetime.strptime(db.user['todo'][db.title][j]['datetime'], '%Y-%m-%d %X')
 
-                if date[2] < today.year or date[1] < today.month or date[0] < today.day:
-                    db.user['todo'][db.title][j]['value'] = 'incomplete'
-                    db.updateItem()
-                if date[2] == today.year or date[1] == today.month or date[0] == today.day:
-                    if time[0] == now.hour and time[1] < now.minute or time[0] < now.hour:
+                if db.user['todo'][db.title][j]['value'] == 'False':
+                    if now > dateTime:
                         db.user['todo'][db.title][j]['value'] = 'incomplete'
-                        db.updateItem()
+
 
                 lb = ttk.Checkbutton(btm, text = j, bootstyle = 'dark', ) 
                 if db.user['todo'][db.title][j]['value'] == 'True':
@@ -182,6 +176,7 @@ class List(ttk.Frame):
                 lb.grid(row = i, column = 0, padx =15, pady = 10, sticky = 'ew')
                 i += 1
 
+                
         add_btn.grid(row = i, column = 0, padx = 15, pady = 10, sticky = 'ew')
         btm.grid(row = 3)
         completed.grid(row = 4, padx = 15, sticky = 'w')
@@ -189,10 +184,11 @@ class List(ttk.Frame):
 
         for i in task_boxes:
             i.bind('<Button-1>', clicked)
-            i.bind('<Button-2>', delete)
+            i.bind('<Button-3>', delete)
 
 
         style.configure('TCheckbutton', font = ('Arial', 10))
+        db.updateItem()
 
     def newEntry(self,controller):
 
@@ -262,6 +258,7 @@ class List(ttk.Frame):
             hour = 0
             minute = 0
         if int(now.minute) == 59:
+            hour = int(now.hour)
             minute = 0 
         else:
             hour = int(now.hour)
@@ -281,37 +278,46 @@ class List(ttk.Frame):
     def checkEntry(self,controller, arg = True, title = ''):
         now = datetime.datetime.now()
         today = datetime.date.today()
-        valid = True
-        if arg:
-            if not title:
-                show.show_error('Enter task', title = 'Error')
+        try:
+            dateTime = datetime.datetime(int(self.year_cb.get()), int(self.months.index(self.month_cb.get())+1),
+             int(self.day_cb.get()), int(self.hours_cb.get()), int(self.min_cb.get()))
+            valid = True
+            if arg:
+                if not title:
+                    show.show_error('Enter task', title = 'Error')
+                    valid = False
+                    self.top.lift()
+                    self.top.focus()
+                elif len(title) > 20:
+                    show.show_error('Maximum 20 characters', title = 'Error')
+                    valid = False
+                    self.top.lift()
+                    self.top.focus()
+                elif title in self.tasks:
+                    show.show_error('Task already exists!', title = "Error")
+                    valid = False
+                    self.top.lift()
+                    self.top.focus()
+            if dateTime <= now:
+                show.show_error('Invalid date and time!', title = "Error")
                 valid = False
                 self.top.lift()
                 self.top.focus()
-            elif len(title) > 20:
-                show.show_error('Maximum 20 characters', title = 'Error')
-                valid = False
-                self.top.lift()
-                self.top.focus()
-            elif title in self.tasks:
-                show.show_error('Task already exists!', title = "Error")
-                valid = False
-                self.top.lift()
-                self.top.focus()
-        if int(self.day_cb.get()) < int(today.day) or (self.months.index(self.month_cb.get())+1) < int(today.month) or int(self.year_cb.get()) < int(today.year):
-            show.show_error('Invalid date!', title = "Error")
-            valid = False
-            self.top.lift()
-            self.top.focus()
-        elif int(self.hours_cb.get()) < int(now.hour) or int(self.min_cb.get()) < int(now.minute):
-            show.show_error('Invalid time!', title = "Error")
-            valid = False
-            self.top.lift()
-            self.top.focus()
+            # elif int(self.hours_cb.get()) < int(now.hour) or int(self.min_cb.get()) < int(now.minute):
+            #     show.show_error('Invalid time!', title = "Error")
+            #     valid = False
+            #     self.top.lift()
+            #     self.top.focus()
 
-        if valid:
-            db.addItem(title, 
-                f'{int(self.day_cb.get())}-{self.months.index(self.month_cb.get())+1}-{int(self.year_cb.get())}',
-                f'{int(self.hours_cb.get())}:{int(self.min_cb.get())}')
-            self.top.destroy()
-            controller.delFrame(List)
+            if valid:
+                # db.addItem(title, 
+                #     f'{int(self.day_cb.get())}-{self.months.index(self.month_cb.get())+1}-{int(self.year_cb.get())}',
+                #     f'{int(self.hours_cb.get())}:{int(self.min_cb.get())}')
+                db.addItem(title, dateTime)
+                self.top.destroy()
+                controller.delFrame(List)
+        except:
+                show.show_error('Invalid date!', title = "Error")
+                self.top.lift()
+                self.top.focus()
+
