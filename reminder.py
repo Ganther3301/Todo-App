@@ -38,6 +38,7 @@ def reminder():
 						if(dateTime not in remind):
 							remind.append(dateTime)
 
+	db.update(users)
 	remind.sort()
 
 	for i in remind:
