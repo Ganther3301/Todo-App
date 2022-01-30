@@ -35,7 +35,7 @@ def reminder():
 				if task_name != ' ':
 					if(users[user]['todo'][task_title][task_name]["value"] == "False"):
 						dateTime = datetime.datetime.strptime(users[user]['todo'][task_title][task_name]["datetime"], '%Y-%m-%d %X')
-						if(dateTime.datetime.now() > dateTime):
+						if(datetime.datetime.now() > dateTime):
 							users[user]['todo'][task_title][task_name]["value"] = "incomplete"
 						elif(dateTime not in remind):
 							remind.append(dateTime)
