@@ -85,5 +85,4 @@ process2 = multiprocessing.Process(target = checker)
 
 if __name__ == '__main__':
 	process2.start()
-	process2.join()
 
