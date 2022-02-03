@@ -69,6 +69,7 @@ process1 = multiprocessing.Process(target = reminder,)
 
 def checker():
 	global process1
+	process1.start()
 	while True:
 		users = dict(db.get().val())
 		time.sleep(5)
@@ -76,7 +77,7 @@ def checker():
 			print('Not changed')
 			continue
 		print("Changed")
-		process1.terminate()
+		process1.kill()
 		process1 = multiprocessing.Process(target = reminder,)
 		process1.start()
 
@@ -84,6 +85,5 @@ def checker():
 process2 = multiprocessing.Process(target = checker)
 
 if __name__ == '__main__':
-	process1.start()
 	process2.start()
 

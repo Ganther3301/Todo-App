@@ -11,7 +11,7 @@ class Login(ttk.Frame):
 
         def checkUsername():
             uname = username.get().strip()
-            pword = password.get()
+            pword = password.get().strip()
             if uname:
                 if not pword:
                     show.show_error('Enter password',title = 'Error',)
@@ -21,7 +21,6 @@ class Login(ttk.Frame):
                         controller.delFrame(Home)
 
                     else:
-                        print("Unsuccess")
                         show.show_error('Incorrect credentials', title = 'Error')
 
         self.columnconfigure(0, weight = 1)
@@ -43,9 +42,11 @@ class Create(ttk.Frame):
         super().__init__(parent)
 
         def createAccount():
-            if name.get() and username.get() and password.get() and email.get():
-                valid = db.create(name.get(), username.get(), password.get(), email.get())
-                if valid:
+            if name.get().strip() and username.get().strip() and password.get().strip() and email.get().strip():
+                valid = db.create(name.get().strip(), username.get().strip(), password.get().strip(), email.get().strip())
+                if len(password.get().strip()) < 8:
+                    show.show_error('Password must have minimum 8 characters!', title = 'Error')
+                elif valid:
                     show.ok('Account created successfully!', title = 'Success')
                     controller.delFrame(Login)
                 else:

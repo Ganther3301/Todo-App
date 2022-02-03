@@ -50,7 +50,6 @@ def get(key, todo = False):
 def addTitle(name):
 	global user
 	data = {name: {' ': 'False'}}
-	print(username)
 	db.child(username).child('todo').update(data)
 	user = dict(db.child(username).get().val())
 
@@ -59,10 +58,12 @@ def deleteTitle(name):
 	db.child(username).child('todo').child(name).remove()
 	user = dict(db.child(username).get().val())
 
-def addItem(name, dateTime):
+def addItem(name, *dateTime):
 	global user
-	print(name)
-	data = {name:{'value':'False', 'datetime':str(dateTime)}}
+	try:
+		data = {name:{'value':'False', 'remind': 'True', 'datetime':str(dateTime[0])}}
+	except:
+		data = {name:{'value':'False', 'remind': 'False',}}
 	db.child(username).child('todo').child(title).update(data)
 	user = dict(db.child(username).get().val())
 
@@ -74,5 +75,4 @@ def deleteItem(name):
 def updateItem():
 	global user
 	db.child(username).update(user)
-	# user = dict(db.child(username).get().val())
 

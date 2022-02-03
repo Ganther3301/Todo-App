@@ -16,19 +16,14 @@ class Home(ttk.Frame):
 
         def display(event):
             if type(event.widget) == ttk.Labelframe:
-                print(event.widget['text'])
                 db.title = event.widget['text']
                 controller.delFrame(List)
             else:    
-                print(icns[event.widget]['text'])
                 db.title = icns[event.widget]['text']
                 controller.delFrame(List)
 
-        def delete(event):
-            if type(event.widget) == ttk.Labelframe:
-                db.deleteTitle(event.widget['text'])
-            else:    
-                db.deleteTitle(icns[event.widget]['text'])
+        def delete():
+            db.deleteTitle(self.widgetName)
             controller.delFrame(Home)
 
         icns = dict() 
@@ -40,29 +35,36 @@ class Home(ttk.Frame):
         add_btn = ttk.Button(btm, text = 'Add New Title', image = icon, compound = 'left',width = 50, bootstyle = 'secondary', command = lambda: self.newEntry(controller))
         add_btn.image = icon
         self.names = db.get('todo')
-        # print(names)
         i = 0
         for j in self.names:
             if  j!= ' ':
                 lb = ttk.Labelframe(btm, text = j, height = 200, bootstyle = 'default') 
-                # width = 195
                 inside = ttk.Frame(lb, height = 15, width = 450,bootstyle = 'secondary')
                 icns[inside] = lb
-                # column = 3 if i%2 else 1 row = i if i%2 else i+1
                 lb.grid(row = i, column = 1, padx =10, pady = 10, sticky = 'ew')
                 inside.grid(row = 0, column = 0, sticky = 'nsew')
                 i += 1
 
         add_btn.grid(row = i, column = 1, padx = 10, pady = 10, sticky = 'ew')
 
-        # menu = ttk.Menu(btm, tearoff = '0')
-        # menu.add_command(label = 'Delete', command = delete)
+        menu = ttk.Menu(self, tearoff = 0)
+        menu.add_command(label = 'Delete', command = delete)
+
+        def do_popup(event):
+            try:
+                menu.tk_popup(event.x_root, event.y_root)
+                if type(event.widget) == ttk.Labelframe:
+                    self.widgetName = event.widget['text']
+                else:    
+                    self.widgetName = icns[event.widget]['text']
+            finally:
+                menu.grab_release()
 
         for i in icns:
             i.bind('<Button-1>',display)
-            i.bind('<Button-3>',delete)
+            i.bind('<Button-3>',do_popup)
             icns[i].bind('<Button-1>',display)
-            icns[i].bind('<Button-3>',delete)
+            icns[i].bind('<Button-3>',do_popup)
 
         btm.grid(row = 2)
         style.configure('TLabelframe',borderwidth = 0.5)
@@ -92,7 +94,7 @@ class Home(ttk.Frame):
         top.title('Enter')
         top.attributes('-toolwindow',True)
 
-        ttk.Label(top, text = "Enter Task:",).grid(row = 0, column = 0, padx = 10, pady = (10,0), sticky = tk.EW)
+        ttk.Label(top, text = "Enter Title:",).grid(row = 0, column = 0, padx = 10, pady = (10,0), sticky = tk.EW)
         title = ttk.Entry(top) 
         title.focus()
         title.grid(row = 1, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
@@ -100,34 +102,26 @@ class Home(ttk.Frame):
         ttk.Button(top, text = 'Create', bootstyle = LIGHT, command = checkEntry).grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
 
 
-
-
-
 class List(ttk.Frame):
     def __init__(self, controller, parent):
         super().__init__()
         self.create_widgets(controller)
+        self.controller = controller
+        self.reminder = tk.BooleanVar()
 
     def create_widgets(self, controller): 
 
-        def delete(event):
-            db.deleteItem(event.widget['text'])
+        def delete():
+            db.deleteItem(self.widgetName)
             controller.delFrame(List)
 
         def clicked(event):
             value = ['True', 'incomplete']
             if db.user['todo'][db.title][event.widget['text']]['value'] in value:
-                self.top = ttk.Toplevel(self) 
-                self.top.title('Enter')
-                self.top.attributes('-toolwindow',True)
-                frame = self.datetimeFrame()
-                frame.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = 'nsew')
-                ttk.Button(self.top, text = 'Create', bootstyle = LIGHT, command = lambda:self.checkEntry(controller, arg = False, title = event.widget['text'])).grid(row = 1, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+                self.newEntry(controller, title = event.widget['text'], arg = False)
 
-                # db.user['todo'][db.title][event.widget['text']]['value'] = 'False'
             else:
                  db.user['todo'][db.title][event.widget['text']]['value'] = 'True'
-            # db.updateItem()
             controller.delFrame(List)
 
 
@@ -156,11 +150,12 @@ class List(ttk.Frame):
         now = datetime.datetime.now()
         for j in self.tasks:
             if  j!= ' ':
-                dateTime = datetime.datetime.strptime(db.user['todo'][db.title][j]['datetime'], '%Y-%m-%d %X')
+                if db.user['todo'][db.title][j]['remind'] == 'True':
+                    dateTime = datetime.datetime.strptime(db.user['todo'][db.title][j]['datetime'], '%Y-%m-%d %X')
 
-                if db.user['todo'][db.title][j]['value'] == 'False':
-                    if now > dateTime:
-                        db.user['todo'][db.title][j]['value'] = 'incomplete'
+                    if db.user['todo'][db.title][j]['value'] == 'False':
+                        if now > dateTime:
+                            db.user['todo'][db.title][j]['value'] = 'incomplete'
 
 
                 lb = ttk.Checkbutton(btm, text = j, bootstyle = 'dark', ) 
@@ -182,45 +177,59 @@ class List(ttk.Frame):
         completed.grid(row = 4, padx = 15, sticky = 'w')
         incomplete.grid(row = 5, padx = 15, sticky = 'w')
 
+        menu = ttk.Menu(self, tearoff = 0)
+        menu.add_command(label = 'Edit', command = lambda:self.newEntry(controller, title = self.widgetName, arg = False) )
+        menu.add_command(label = 'Delete', command = delete)
+
+        def do_popup(event):
+            try:
+                menu.tk_popup(event.x_root, event.y_root)
+                self.widgetName = event.widget['text']
+            finally:
+                menu.grab_release()
+
+
         for i in task_boxes:
             i.bind('<Button-1>', clicked)
-            i.bind('<Button-3>', delete)
+            i.bind('<Button-3>', do_popup)
 
 
         style.configure('TCheckbutton', font = ('Arial', 10))
         db.updateItem()
 
-    def newEntry(self,controller):
-
+    def newEntry(self,controller, title = '', arg = True,):
 
         self.top = ttk.Toplevel(self) 
         self.top.title('Enter')
         self.top.attributes('-toolwindow',True)
 
-        ttk.Label(self.top, text = "Enter Task:",).grid(row = 0, column = 0, padx = 10, pady = (10,0), sticky = tk.EW)
-        self.title = ttk.Entry(self.top) 
-        self.title.focus()
-        self.title.grid(row = 1, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
+        if arg:
+            ttk.Label(self.top, text = "Enter Task:",).grid(row = 0, column = 0, padx = 10, pady = (10,0), sticky = tk.EW)
+            self.title = ttk.Entry(self.top) 
+            self.title.focus()
+            self.title.grid(row = 1, column = 0, sticky = tk.EW, padx = 10, pady = (0,10))
+        else:
+            self.title = tk.StringVar(value = title)
 
-        frame = self.datetimeFrame()
-
-        frame.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
-
-        ttk.Button(self.top, text = 'Create', bootstyle = LIGHT, command = lambda:self.checkEntry(controller, title = self.title.get().strip())).grid(row = 3, column = 0, padx = 10, pady = 10, sticky = 'nsew')
-
-    def datetimeFrame(self):
         today = datetime.date.today()
         now = datetime.datetime.now()
         frame = tk.Frame(self.top)
         date = tk.Frame(frame)
+
+        def refresh():
+            self.top.destroy()
+            if arg:
+                self.newEntry(self.controller, arg = arg)
+            else:
+                self.newEntry(self.controller, title = self.title.get(), arg = arg)
+        reminderButton = ttk.Checkbutton(frame, text = 'Add reminder', command = refresh, bootstyle = 'dark',variable = self.reminder, onvalue = True, offvalue = False) 
+        reminderButton.grid(row = 0, padx = 5, pady = 5, sticky = 'w')
          
         self.day_cb = ttk.Combobox(date, values = list(range(1,32)), state = 'readonly', width = 3)
         self.day_cb.current(int(today.day) - 1)
 
-        # selected_month = tk.StringVar(value = 'Month',)
         self.month_cb = ttk.Combobox(date, state = 'readonly',  width = 3)
 
-        # get first 3 letters of every month name
         self.months = [
             'Jan',
             'Feb',
@@ -237,7 +246,6 @@ class List(ttk.Frame):
         ]
         self.month_cb['values'] = self.months
 
-        # prevent typing a value
         self.month_cb.current(int(today.month) - 1)
 
         years =  list(range(int(today.year),int(today.year)+11))
@@ -247,8 +255,6 @@ class List(ttk.Frame):
         self.day_cb.grid(row = 0, column = 0, padx = 2)
         self.month_cb.grid(row = 0, column = 1, padx = 2)
         self.year_cb.grid(row = 0, column = 2, padx = 2)
-
-        date.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = 'nsew')
 
         time = ttk.Frame(frame)
         self.hours_cb = ttk.Combobox(time, values = list(range(0,24)), state = 'readonly', width = 5)
@@ -271,9 +277,14 @@ class List(ttk.Frame):
         ttk.Label(time, text = ':', width = 1).grid(row = 0, column = 1, padx = 5, sticky = 'nsew')
         self.min_cb.grid(row = 0, column = 2, padx = 5, sticky = 'nsew')
 
-        time.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+        if(self.reminder.get()):
+            date.grid(row = 1, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+            time.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
 
-        return frame
+        frame.grid(row = 2, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+
+        ttk.Button(self.top, text = 'Create', bootstyle = LIGHT, command = lambda:self.checkEntry(controller, title = self.title.get().strip(), arg = arg)).grid(row = 3, column = 0, padx = 10, pady = 10, sticky = 'nsew')
+
 
     def checkEntry(self,controller, arg = True, title = ''):
         now = datetime.datetime.now()
@@ -298,22 +309,18 @@ class List(ttk.Frame):
                     valid = False
                     self.top.lift()
                     self.top.focus()
-            if dateTime <= now:
-                show.show_error('Invalid date and time!', title = "Error")
-                valid = False
-                self.top.lift()
-                self.top.focus()
-            # elif int(self.hours_cb.get()) < int(now.hour) or int(self.min_cb.get()) < int(now.minute):
-            #     show.show_error('Invalid time!', title = "Error")
-            #     valid = False
-            #     self.top.lift()
-            #     self.top.focus()
+            if self.reminder.get():
+                if dateTime <= now:
+                    show.show_error('Invalid date and time!', title = "Error")
+                    valid = False
+                    self.top.lift()
+                    self.top.focus()
 
             if valid:
-                # db.addItem(title, 
-                #     f'{int(self.day_cb.get())}-{self.months.index(self.month_cb.get())+1}-{int(self.year_cb.get())}',
-                #     f'{int(self.hours_cb.get())}:{int(self.min_cb.get())}')
-                db.addItem(title, dateTime)
+                if self.reminder.get():
+                    db.addItem(title, dateTime)
+                else:
+                    db.addItem(title)
                 self.top.destroy()
                 controller.delFrame(List)
         except:

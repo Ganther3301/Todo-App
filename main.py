@@ -36,7 +36,7 @@ class App(ttk.Window):
 		self.frames[List] = db.title
 		if self.frames[cont] in ['Home', db.title]:
 			self.attributes('-toolwindow', False)
-			self.geometry('500x700+150+50')
+			self.geometry('500x700')
 			self.canvas.configure(height = 700, width = 500)
 		else:
 			self.frame.pack(fill = 'both', expand = True)
@@ -55,13 +55,10 @@ class App(ttk.Window):
 
 		self.canvas.create_window((0,0), window = self.frame, anchor = 'nw',)
 		self.title(self.frames[cont])
-		# self.frame.tkraise()
 
 	def delFrame(self,cont):
-		# self.frame.pack_forget()
 		self.frame.pack_forget()
 		self.canvas.delete('all')
-		# self.canvas.delete('all')
 		self.showFrame(cont)
 
 if __name__ == '__main__':
