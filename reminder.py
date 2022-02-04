@@ -1,7 +1,6 @@
 import pyrebase as pb
 import yagmail
 import pause
-import time
 import datetime	
 import multiprocessing
 
@@ -61,7 +60,7 @@ def reminder():
 
 		for email in remindEmails:
 			for task in remindEmails[email]:
-				yag.send(to = email, subject = 'You have an incomplete task', contents = f'Your task \'{task}\' is not completed yet. Please reschedule it')	
+				yag.send(to = email, subject = 'You have an incomplete task', contents = f'Your task \'{task}\' is not completed yet. Please reschedule it.')	
 				print(f'mail sent to {email} about {task}')
 		db.update(users)
 

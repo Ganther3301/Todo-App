@@ -8,7 +8,6 @@ class App(ttk.Window):
 	def __init__(self):
 		super().__init__(themename = "darkly")
 
-		self.title('Test')
 		self.resizable(0,0)
 		self.attributes('-toolwindow',True)
 

@@ -1,6 +1,5 @@
 import tkinter as tk
 import datetime
-import subprocess
 from ttkbootstrap.dialogs import Messagebox as show
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
@@ -222,13 +221,13 @@ class List(ttk.Frame):
                 self.newEntry(self.controller, arg = arg)
             else:
                 self.newEntry(self.controller, title = self.title.get(), arg = arg)
-        reminderButton = ttk.Checkbutton(frame, text = 'Add reminder', command = refresh, bootstyle = 'dark',variable = self.reminder, onvalue = True, offvalue = False) 
+        reminderButton = ttk.Checkbutton(frame, text = 'Add deadline', command = refresh, bootstyle = 'dark',variable = self.reminder, onvalue = True, offvalue = False) 
         reminderButton.grid(row = 0, padx = 5, pady = 5, sticky = 'w')
          
         self.day_cb = ttk.Combobox(date, values = list(range(1,32)), state = 'readonly', width = 3)
         self.day_cb.current(int(today.day) - 1)
 
-        self.month_cb = ttk.Combobox(date, state = 'readonly',  width = 3)
+        self.month_cb = ttk.Combobox(date, state = 'readonly',  width = 5)
 
         self.months = [
             'Jan',
@@ -324,7 +323,7 @@ class List(ttk.Frame):
                 self.top.destroy()
                 controller.delFrame(List)
         except:
-                show.show_error('Invalid date!', title = "Error")
+                show.show_error('Invalid!', title = "Error")
                 self.top.lift()
                 self.top.focus()
 
