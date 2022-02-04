@@ -43,14 +43,14 @@ class Create(ttk.Frame):
 
         def createAccount():
             if name.get().strip() and username.get().strip() and password.get().strip() and email.get().strip():
-                valid = db.create(name.get().strip(), username.get().strip(), password.get().strip(), email.get().strip())
-                if len(password.get().strip()) < 8:
+                valid, key = db.create(name.get().strip(), username.get().strip(), password.get().strip(), email.get().strip())
+                if not valid and key == 'p' :
                     show.show_error('Password must have minimum 8 characters!', title = 'Error')
+                if not valid and key == 'u' :
+                    show.show_error('Username already exists!', title = 'Error')
                 elif valid:
                     show.ok('Account created successfully!', title = 'Success')
                     controller.delFrame(Login)
-                else:
-                    show.show_error('Username already exists!', title = 'Error')
             else:
                 show.show_error('Fill all the fields!', title = 'Error')
 

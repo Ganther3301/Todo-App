@@ -33,7 +33,9 @@ def create(name, username, psswd, email):
 	uname = username
 	global users
 	if username in users:
-		return False
+		return False, 'u'
+	elif len(psswd) < 8:
+		return False, 'p' 
 	else: 
 		data = {'name':name, 'password':psswd, 'email':email, 'todo':{' ': {' ': 'False'}}}
 		db.child(username).set(data)		
